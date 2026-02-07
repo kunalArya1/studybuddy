@@ -1,14 +1,143 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
 }
 
+
 datasource db {
   provider = "postgresql"
+}
+
+enum Role{
+  ADMIN
+  STUDENT
+  INSTRUCTUR
+}
+
+enum Gender{
+  Male
+  Female
+  Other
+}
+model User{
+  id              Int              @id @default(autoincrement())
+  name            String
+  email           String           @unique
+  contactNumber   String
+  password        String
+  accountType     String
+  active          Boolean          @default(true)
+  approved        Boolean          @default(false)
+
+  profile         Profile?
+  courses         Course[]         @relation("InstructorCourses")
+  enrolledCourses Course[]         @relation("StudentCourses")
+  invoices        Invoice[]
+  reviews         RatingAndReview[]
+  progress        CourseProgress[]
+
+  createdAt       DateTime         @default(now())
+}
+
+
+model SubSection{
+  id Int @id @default(autoincrement())
+  Title String
+  timeDuration String
+  description String
+  videoUrl String
+  additionalUrl String
+  sectionId Int
+  section Section @relation(fields: [sectionId],references: [id])
+  courseProgressId Int
+  courseProgress CourseProgress @relation(fields: [courseProgressId],references: [id])
+}
+
+model Section{
+  id Int @id @default(autoincrement())
+  sectionName String
+
+  courseId Int
+  course Course @relation(fields: [courseId],references: [id])
+  subSection SubSection[]
+}
+model CourseProgress {
+  id        Int     @id @default(autoincrement())
+
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+
+  courseId  Int
+  course    Course  @relation(fields: [courseId], references: [id])
+
+  completedSubSections SubSection[]
+}
+model Course {
+  id                 Int              @id @default(autoincrement())
+  courseName         String
+  courseDescription  String
+  price              Float
+  thumbnail          String
+  instructorId       Int
+  instructor         User             @relation("InstructorCourses", fields: [instructorId], references: [id])
+
+  sections           Section[]
+  reviews            RatingAndReview[]
+  tags               Tags[]
+  invocie            Invoice[]
+  courseProgress     CourseProgress[]
+
+  students           User[]           @relation("StudentCourses")
+
+  createdAt          DateTime         @default(now())
+}
+
+
+model RatingAndReview{
+  id Int @id @default(autoincrement())
+  rating Int
+  review String
+
+  userId    Int
+  user      User   @relation(fields: [userId], references: [id])
+  courseId  Int
+  course    Course @relation(fields: [courseId], references: [id])
+}
+
+model Tags{
+  id Int @id @default(autoincrement())
+  Name String
+  Description String
+  CourseId Int
+  course Course @relation(fields: [CourseId],references: [id])
+}
+
+model Invoice {
+  id        Int     @id @default(autoincrement())
+  price     Float
+  address   String
+  pincode   String
+
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+
+  courseId  Int 
+  course    Course  @relation(fields: [courseId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+
+
+
+model Profile{
+  id Int @id @default(autoincrement())
+  gender Gender
+  dob String
+  about String
+  contactNumber String
+
+  userId Int @unique
+  user User @relation(fields: [userId],references: [id])
 }
