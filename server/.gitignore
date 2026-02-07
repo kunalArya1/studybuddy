@@ -144,3 +144,7 @@ dist
 # SvelteKit build / generate output
 .svelte-kit
 
+
+/generated/prisma
+
+/generated/prisma
