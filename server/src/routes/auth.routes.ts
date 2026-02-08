@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from "express";
 import {
   forgotPassword,
   resetPassword,
+  sendOtp,
   signIn,
   signOut,
   signUp,
@@ -10,47 +11,159 @@ import {
 const router: Router = Router();
 
 /**
- * @route POST /sign-in
- * @desc  User sign-in
- * @access Public
+ * @swagger
+ * /auth/sign-in:
+ *   post:
+ *     summary: User sign-in
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 example: Password@123
+ *     responses:
+ *       200:
+ *         description: Login successful
  */
 router.route("/sign-in").post(signIn);
 
 /**
- * @route POST /sign-up
- * @desc  User sign-up
- * @access Public
+ * @swagger
+ * /auth/sign-up:
+ *   post:
+ *     summary: User sign-up
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - firstName
+ *               - lastName
+ *               - email
+ *               - password
+ *               - confirmPassword
+ *               - otp
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *                 example: Kunal
+ *               lastName:
+ *                 type: string
+ *                 example: Kumar
+ *               email:
+ *                 type: string
+ *                 example: kunal@gmail.com
+ *               password:
+ *                 type: string
+ *                 example: Password@123
+ *               confirmPassword:
+ *                 type: string
+ *                 example: Password@123
+ *               accountType:
+ *                 type: string
+ *                 enum: [STUDENT, INSTRUCTOR]
+ *                 example: STUDENT
+ *               contactNumber:
+ *                 type: string
+ *                 example: "9876543210"
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
  */
 router.route("/sign-up").post(signUp);
 
 /**
- * @route POST /send-otp
- * @desc  User send-otp
- * @access Public
+ * @swagger
+ * /auth/send-otp:
+ *   post:
+ *     summary: Send OTP to email
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@gmail.com
  */
-router.route("/send-otp").post();
+
+router.route("/send-otp").post(sendOtp);
+
 /**
- * @route POST /sign-out
- * @desc  User sign-out
- * @access Private
+ * @swagger
+ * /auth/sign-out:
+ *   get:
+ *     summary: User sign-out
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
  */
 router.route("/sign-out").get(signOut);
+
 /**
- * @route POST /forgot-password
- * @desc  User forgot-password
- * @access Public
+ * @swagger
+ * /auth/forgot-password-token:
+ *   post:
+ *     summary: Send password reset link
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@gmail.com
  */
 router.route("/forgot-password").post(forgotPassword);
+
 /**
- * @route POST /forgot-password-token
- * @desc  User forgot-password-token
- * @access Public
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Reset password for logged-in user
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [oldPassword, newPassword, confirmPassword]
+ *             properties:
+ *               oldPassword:
+ *                 type: string
+ *                 example: OldPassword@123
+ *               newPassword:
+ *                 type: string
+ *                 example: NewPassword@123
+ *               confirmPassword:
+ *                 type: string
+ *                 example: NewPassword@123
  */
-router.route("/forgot-password-token").post(forgotPassword);
-/**
- * @route POST /reset-password
- * @desc  User reset-password
- * @access Private
- */
-router.route("/reset-password").get(resetPassword);
+router.route("/reset-password").post(resetPassword);
 export default router;

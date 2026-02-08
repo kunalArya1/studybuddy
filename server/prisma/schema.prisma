@@ -28,6 +28,8 @@ model User{
   password        String
   accountType     String
   active          Boolean          @default(true)
+  token String?
+  resetpasswordExpriesIn Int?
   approved        Boolean          @default(false)
 
   profile         Profile?
@@ -128,11 +130,18 @@ model Invoice {
   createdAt DateTime @default(now())
 }
 
+model Otp{
+  id Int @id @default(autoincrement())
+  email String
+  otp String
+  createdAt DateTime @default(now())
+}
 
 
 
 model Profile{
   id Int @id @default(autoincrement())
+  imageUrl String
   gender Gender
   dob String
   about String
