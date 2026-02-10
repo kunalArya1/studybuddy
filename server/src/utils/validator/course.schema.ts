@@ -10,3 +10,10 @@ export const createCourseSchema = z.object({
     category: z.array(z.string()).min(1,"categorys are required"),
     status: z.string().min(1,"status is required")
 });
+
+
+export const ratingShema = z.object({
+    rating: z.string().min(1,"Rating is required"),
+    review: z.string().min(10,"Review is required"),
+    courseId: z.number("Invlaid format")
+})
