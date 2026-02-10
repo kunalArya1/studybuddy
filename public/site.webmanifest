@@ -1,0 +1,16 @@
+{
+  "name": "StudyBuddy",
+  "short_name": "StudyBuddy",
+  "description": "Learn skills that matter with expert-led courses",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#171717",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
