@@ -32,3 +32,22 @@ export const deleteSectionSchema = z.object({
   sectionId: z.number("Section id is required"),
   courseId: z.number("Course id is required"),
 });
+
+// Subsection
+export const addSubsectionSchema = z.object({
+  sectionId: z.number("section id is required"),
+  title: z.string().min(4, "subsection title is required"),
+  description: z.string().min(10, "subsection description is required"),
+});
+
+export const updateSubsectionSchema = z.object({
+  sectionId: z.number("section id is required"),
+  subSectionId: z.number("sub section id is required"),
+  title: z.string().min(4, "subsection title is required"),
+  description: z.string().min(10, "subsection description is required"),
+});
+
+export const deleteSubsectionShcema = z.object({
+  sectionId: z.number("section id is required"),
+  subSectionId: z.number("Subsection id is required"),
+});
