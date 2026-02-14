@@ -51,3 +51,13 @@ export const deleteSubsectionShcema = z.object({
   sectionId: z.number("section id is required"),
   subSectionId: z.number("Subsection id is required"),
 });
+
+// Category
+
+export const createCategorySchema = z.object({
+  name: z.string().min(3, "Category name is required"),
+  description: z
+    .string()
+    .min(10, "Category description be at least 10 Character")
+    .optional(),
+});
