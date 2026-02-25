@@ -5,7 +5,7 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// Mock data - in real app, fetch based on ID
+// Mock data - Fixed the duplicate key "reviews"
 const pathData = {
   id: "frontend-developer",
   title: "Frontend Developer",
@@ -22,7 +22,7 @@ const pathData = {
   projectCount: 12,
   students: 12500,
   rating: 4.9,
-  reviews: 3240,
+  reviewsCount: 3240, // RENAMED THIS to avoid conflict
   color: "from-blue-500 to-cyan-500",
   skills: [
     "HTML/CSS",
@@ -294,7 +294,7 @@ export default function PathDetailPage() {
                     {pathData.rating}
                   </span>
                   <span className="text-neutral-500">
-                    ({pathData.reviews.toLocaleString()} reviews)
+                    ({pathData.reviewsCount.toLocaleString()} reviews)
                   </span>
                 </div>
                 <span className="text-neutral-500">
@@ -385,7 +385,6 @@ export default function PathDetailPage() {
             {/* Sticky Enroll Card */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden sticky top-28">
-                {/* Preview Image */}
                 <div
                   className={`aspect-video bg-gradient-to-br ${pathData.color} relative`}
                 >
@@ -412,29 +411,20 @@ export default function PathDetailPage() {
                 </div>
 
                 <div className="p-6">
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-sm text-neutral-500">
-                      Included with
-                    </span>
-                  </div>
                   <div className="flex items-baseline gap-2 mb-4">
                     <span className="text-2xl font-medium text-neutral-900">
                       Pro Membership
                     </span>
                   </div>
-
                   <p className="text-sm text-neutral-500 mb-6">
                     Get unlimited access to all courses and learning paths
                   </p>
-
                   <button className="w-full bg-neutral-900 text-white py-4 rounded-full text-sm font-medium hover:bg-neutral-800 transition-colors mb-3">
                     Start Learning
                   </button>
-
                   <button className="w-full bg-white text-neutral-900 py-4 rounded-full text-sm font-medium border border-neutral-200 hover:border-neutral-400 transition-colors mb-4">
                     Try 7 Days Free
                   </button>
-
                   <div className="border-t border-neutral-100 pt-6">
                     <h4 className="text-sm font-medium text-neutral-900 mb-4">
                       This path includes:
@@ -477,7 +467,7 @@ export default function PathDetailPage() {
         </div>
       </section>
 
-      {/* Learning Outcomes */}
+      {/* Learning Outcomes & Curriculum */}
       <section className="pt-8 pb-16 px-6 lg:px-8 border-t border-neutral-200">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-3 gap-12">
@@ -508,25 +498,17 @@ export default function PathDetailPage() {
                 </div>
               </div>
 
-              {/* Curriculum */}
+              {/* Curriculum Phases */}
               <div className="mb-12">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-medium text-neutral-900 tracking-tight">
-                    Curriculum
-                  </h2>
-                  <div className="text-sm text-neutral-500">
-                    {pathData.curriculum.length} phases • {totalCourses} courses
-                    • {pathData.duration}
-                  </div>
-                </div>
-
+                <h2 className="text-2xl font-medium text-neutral-900 tracking-tight mb-6">
+                  Curriculum
+                </h2>
                 <div className="space-y-4">
                   {pathData.curriculum.map((phase, phaseIndex) => (
                     <div
                       key={phaseIndex}
                       className="border border-neutral-200 rounded-2xl overflow-hidden"
                     >
-                      {/* Phase Header */}
                       <button
                         onClick={() => togglePhase(phaseIndex)}
                         className="w-full flex items-center justify-between p-5 bg-neutral-50 hover:bg-neutral-100 transition-colors text-left"
@@ -548,89 +530,47 @@ export default function PathDetailPage() {
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <span className="text-sm text-neutral-500 hidden sm:block">
-                            {phase.courses.length} courses • {phase.duration}
-                          </span>
-                          <svg
-                            className={`w-5 h-5 text-neutral-500 transition-transform ${
-                              expandedPhases.includes(phaseIndex)
-                                ? "rotate-180"
-                                : ""
-                            }`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1.5}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
+                        <svg
+                          className={`w-5 h-5 text-neutral-500 transition-transform ${expandedPhases.includes(phaseIndex) ? "rotate-180" : ""}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
                       </button>
-
-                      {/* Phase Courses */}
                       {expandedPhases.includes(phaseIndex) && (
                         <div className="divide-y divide-neutral-100">
-                          {phase.courses.map((course, courseIndex) => (
+                          {phase.courses.map((course, idx) => (
                             <Link
-                              key={courseIndex}
+                              key={idx}
                               href={`/courses/${course.id}`}
                               className="flex items-center justify-between p-5 hover:bg-neutral-50 transition-colors"
                             >
                               <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-neutral-100 rounded-xl flex items-center justify-center">
+                                <div className="w-10 h-10 bg-neutral-100 rounded-xl flex items-center justify-center text-neutral-500">
                                   <svg
-                                    className="w-5 h-5 text-neutral-500"
+                                    className="w-5 h-5"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
                                   >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={1.5}
-                                      d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                                    />
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={1.5}
-                                      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
+                                    <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                   </svg>
                                 </div>
-                                <div>
-                                  <h4 className="font-medium text-neutral-900">
-                                    {course.title}
-                                  </h4>
-                                  <p className="text-sm text-neutral-500">
-                                    {course.lessons} lessons • {course.projects}{" "}
-                                    projects
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <span className="text-sm text-neutral-500">
-                                  {course.duration}
+                                <span className="font-medium text-neutral-900">
+                                  {course.title}
                                 </span>
-                                <svg
-                                  className="w-5 h-5 text-neutral-400"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={1.5}
-                                    d="M9 5l7 7-7 7"
-                                  />
-                                </svg>
                               </div>
+                              <span className="text-sm text-neutral-500">
+                                {course.duration}
+                              </span>
                             </Link>
                           ))}
                         </div>
@@ -640,140 +580,63 @@ export default function PathDetailPage() {
                 </div>
               </div>
 
-              {/* Portfolio Projects */}
+              {/* Projects */}
               <div className="mb-12">
                 <h2 className="text-2xl font-medium text-neutral-900 tracking-tight mb-6">
                   Portfolio Projects
                 </h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {pathData.projects.map((project, index) => (
+                <div className="grid md:grid-cols-2 gap-4">
+                  {pathData.projects.map((project, idx) => (
                     <div
-                      key={index}
-                      className="p-5 bg-white rounded-2xl border border-neutral-200"
+                      key={idx}
+                      className="p-5 bg-white border border-neutral-200 rounded-2xl"
                     >
-                      <div className="flex items-center gap-2 mb-3">
-                        <span
-                          className={`px-2.5 py-1 text-xs font-medium rounded-full ${
-                            project.difficulty === "Beginner"
-                              ? "bg-green-100 text-green-700"
-                              : project.difficulty === "Intermediate"
-                                ? "bg-amber-100 text-amber-700"
-                                : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          {project.difficulty}
-                        </span>
-                      </div>
+                      <span
+                        className={`px-2 py-1 text-xs font-medium rounded-full mb-3 inline-block ${project.difficulty === "Beginner" ? "bg-green-100 text-green-700" : project.difficulty === "Intermediate" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}
+                      >
+                        {project.difficulty}
+                      </span>
                       <h3 className="font-medium text-neutral-900 mb-2">
                         {project.title}
                       </h3>
                       <p className="text-sm text-neutral-500 mb-4">
                         {project.description}
                       </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {project.skills.map((skill, i) => (
-                          <span
-                            key={i}
-                            className="px-2 py-0.5 bg-neutral-100 text-neutral-500 text-xs rounded"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Instructors */}
+              {/* Reviews Section */}
               <div className="mb-12">
                 <h2 className="text-2xl font-medium text-neutral-900 tracking-tight mb-6">
-                  Learn from industry experts
+                  Student Reviews
                 </h2>
-                <div className="grid md:grid-cols-3 gap-4">
-                  {pathData.instructors.map((instructor, index) => (
-                    <div
-                      key={index}
-                      className="p-5 bg-white rounded-2xl border border-neutral-200 text-center"
-                    >
-                      <div className="w-16 h-16 bg-neutral-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-lg font-medium text-white">
-                          {instructor.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </span>
-                      </div>
-                      <h3 className="font-medium text-neutral-900">
-                        {instructor.name}
-                      </h3>
-                      <p className="text-sm text-neutral-500">
-                        {instructor.title}
-                      </p>
-                      <p className="text-sm text-neutral-400">
-                        at {instructor.company}
-                      </p>
-                      <p className="text-xs text-neutral-400 mt-2">
-                        {instructor.courses} courses in this path
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Reviews */}
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-medium text-neutral-900 tracking-tight">
-                    Student Reviews
-                  </h2>
-                  <div className="flex items-center gap-2">
-                    <svg
-                      className="w-5 h-5 text-amber-500"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    <span className="font-medium text-neutral-900">
-                      {pathData.rating}
-                    </span>
-                    <span className="text-neutral-500">
-                      ({pathData.reviews.toLocaleString()} reviews)
-                    </span>
-                  </div>
-                </div>
-
                 <div className="space-y-6">
-                  {pathData.reviews.map((review, index) => (
+                  {pathData.reviews.map((review, idx) => (
                     <div
-                      key={index}
+                      key={idx}
                       className="p-6 bg-white rounded-2xl border border-neutral-200"
                     >
-                      <div className="flex items-start justify-between mb-4">
+                      <div className="flex justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-neutral-900 rounded-full flex items-center justify-center">
-                            <span className="text-sm font-medium text-white">
-                              {review.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </span>
+                          <div className="w-10 h-10 bg-neutral-900 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                            {review.name.charAt(0)}
                           </div>
                           <div>
                             <p className="font-medium text-neutral-900">
                               {review.name}
                             </p>
-                            <p className="text-sm text-neutral-500">
+                            <p className="text-xs text-neutral-500">
                               {review.date}
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-0.5">
-                          {[...Array(5)].map((_, i) => (
+                        <div className="flex text-amber-500">
+                          {[...Array(review.rating)].map((_, i) => (
                             <svg
                               key={i}
-                              className={`w-4 h-4 ${i < review.rating ? "text-amber-500" : "text-neutral-200"}`}
+                              className="w-4 h-4"
                               fill="currentColor"
                               viewBox="0 0 24 24"
                             >
@@ -782,62 +645,13 @@ export default function PathDetailPage() {
                           ))}
                         </div>
                       </div>
-                      <p className="text-neutral-600 leading-relaxed">
-                        {review.comment}
-                      </p>
+                      <p className="text-neutral-600">{review.comment}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-
-            {/* Sidebar spacer */}
             <div className="hidden lg:block" />
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 px-6 lg:px-8 bg-neutral-900">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-sm text-neutral-500 mb-6 tracking-wide uppercase">
-            Start Today
-          </p>
-          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-medium text-white leading-tight tracking-tight mb-6">
-            Begin your journey to
-            <br />
-            <span className="text-neutral-500">{pathData.title}</span>
-          </h2>
-          <p className="text-lg text-neutral-400 max-w-xl mx-auto leading-relaxed mb-10">
-            Join {pathData.students.toLocaleString()}+ students who have already
-            started this path.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/signup"
-              className="inline-flex items-center gap-3 bg-white text-neutral-900 px-8 py-4 rounded-full text-sm font-medium hover:bg-neutral-100 transition-all group"
-            >
-              Start Learning Free
-              <svg
-                className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
-            </Link>
-            <Link
-              href="/paths"
-              className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors px-4 py-4"
-            >
-              View All Paths
-            </Link>
           </div>
         </div>
       </section>
