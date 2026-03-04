@@ -1,36 +1,213 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StuddyBuddy Frontend
+
+StuddyBuddy is a modern learning platform frontend built with **Next.js (App Router)**, **React**, **TypeScript**, and **Tailwind CSS**.
+
+It includes:
+
+- marketing pages (home, about, contact),
+- course and path browsing,
+- authentication screens,
+- role-based dashboard pages for student, instructor, and admin experiences.
+
+---
+
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Tech Stack](#tech-stack)
+- [App Structure](#app-structure)
+- [Routes](#routes)
+- [Getting Started](#getting-started)
+- [Available Scripts](#available-scripts)
+- [Development Guidelines](#development-guidelines)
+- [Deployment](#deployment)
+- [Future Improvements](#future-improvements)
+
+---
+
+## Project Overview
+
+This repository currently focuses on the **frontend layer** of StuddyBuddy.
+
+Key goals of the app UI:
+
+- Present courses and learning paths in a clean, discoverable format.
+- Offer polished onboarding and authentication flows.
+- Provide role-specific dashboard experiences for learners and educators.
+- Keep components modular and reusable for faster future feature development.
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js `16.1.6` (App Router)
+- **UI Library:** React `19.2.3`
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS v4
+- **Linting:** ESLint 9 + `eslint-config-next`
+
+---
+
+## App Structure
+
+The codebase follows a component-driven structure with Next.js `app/` routing.
+
+```text
+src/
+	app/
+		(dashboard)/
+			admin/
+			instructor/
+			student/
+		about/
+		contact/
+		courses/
+		learn/
+		login/
+		paths/
+		signup/
+		page.tsx
+
+	components/
+		about/
+		auth/
+		contact/
+		courses/
+		dashboard/
+		home/
+		paths/
+		Navbar.tsx
+		Footer.tsx
+```
+
+### Structure Notes
+
+- `src/app/` contains route definitions and page-level composition.
+- `src/components/` contains reusable UI pieces grouped by feature/domain.
+- `(dashboard)` is a route group used to organize role-based dashboard screens.
+
+---
+
+## Routes
+
+### Public Marketing / Info
+
+- `/` — Home page
+- `/about` — About StuddyBuddy
+- `/contact` — Contact page
+
+### Authentication
+
+- `/login` — Login screen
+- `/signup` — Signup screen
+
+### Courses & Learning
+
+- `/courses` — Course listing
+- `/courses/[id]` — Course details
+- `/learn/[courseId]` — Learning experience page
+
+### Learning Paths
+
+- `/paths` — Paths listing
+- `/paths/[id]` — Path details
+
+### Dashboard (Role-Based)
+
+- `/admin` — Admin dashboard
+- `/instructor` — Instructor dashboard
+- `/student` — Student dashboard main
+- `/student/achievements`
+- `/student/bookmarks`
+- `/student/certificates`
+- `/student/courses`
+- `/student/paths`
+- `/student/settings`
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- **Node.js**: 18.18+ (or current LTS)
+- **npm**: 9+
+
+### 1) Clone the repository
+
+```bash
+git clone <your-repo-url>
+cd studdybuddy
+```
+
+### 2) Install dependencies
+
+```bash
+npm install
+```
+
+### 3) Run in development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open: [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Available Scripts
 
-## Learn More
+In the project directory:
 
-To learn more about Next.js, take a look at the following resources:
+- `npm run dev` — Starts local development server.
+- `npm run build` — Creates production build.
+- `npm run start` — Starts production server (after build).
+- `npm run lint` — Runs ESLint checks.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Development Guidelines
 
-## Deploy on Vercel
+- Use **feature-based component folders** under `src/components/`.
+- Keep route files in `src/app/` focused on layout/composition.
+- Prefer reusable, typed components with clear props.
+- Run lint checks before opening pull requests:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run lint
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Deployment
+
+This app is ready for deployment on platforms that support Next.js, such as:
+
+- Vercel
+- Netlify
+- AWS / Azure / GCP (via container or Node runtime)
+
+Typical production flow:
+
+```bash
+npm install
+npm run build
+npm run start
+```
+
+---
+<!-- 
+## Future Improvements
+
+- Backend/API integration for real course/user data.
+- Authentication/session integration.
+- State management for enrolled courses and progress tracking.
+- Test coverage (unit + integration + e2e).
+- Accessibility and performance audit hardening.
+
+--- -->
+
+<!-- ## License
+
+Add a license file (for example `MIT`) if you plan to open source this project. -->

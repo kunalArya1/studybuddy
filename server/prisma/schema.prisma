@@ -1,0 +1,156 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role{
+  ADMIN
+  STUDENT
+  INSTRUCTUR
+}
+
+enum Gender{
+  Male
+  Female
+  Other
+}
+model User{
+  id              Int              @id @default(autoincrement())
+  name            String
+  email           String           @unique
+  password        String?
+  accountType     String
+  active          Boolean          @default(true)
+  token String?
+  resetpasswordExpriesIn DateTime?
+  approved        Boolean          @default(false)
+  profile         Profile?
+  courses         Course[]         @relation("InstructorCourses")
+  enrolledCourses Course[]         @relation("StudentCourses")
+  invoices        Invoice[]
+  reviews         RatingAndReview[]
+  progress        CourseProgress[]
+  createdAt       DateTime         @default(now())
+}
+
+
+model SubSection{
+  id Int @id @default(autoincrement())
+  title String
+  timeDuration String
+  description String
+  videoUrl String
+  additionalUrl String
+  sectionId Int
+  section Section @relation(fields: [sectionId],references: [id])
+  courseProgressId Int
+  courseProgress CourseProgress @relation(fields: [courseProgressId],references: [id])
+}
+
+model Section{
+  id Int @id @default(autoincrement())
+  sectionName String
+
+  courseId Int
+  course Course @relation(fields: [courseId],references: [id])
+  subSection SubSection[]
+}
+model CourseProgress {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  courseId  Int
+  course    Course  @relation(fields: [courseId], references: [id])
+  completedSubSections SubSection[]
+}
+
+enum courseStatus{
+  Draft
+  Published
+}
+model Course {
+  id                 Int              @id @default(autoincrement())
+  courseName         String
+  courseDescription  String
+  whatWillYouLearn  String
+  price              Float
+  thumbnail          String
+  instruction String
+  status courseStatus
+  instructorId       Int
+  instructor         User             @relation("InstructorCourses", fields: [instructorId], references: [id])
+
+  courseContent           Section[]
+  reviews            RatingAndReview[]
+  tags               Tags[]
+  invocie            Invoice[]
+  courseProgress     CourseProgress[]
+  categoryId Int
+  category Category @relation(fields: [categoryId],references: [id])
+  students           User[]           @relation("StudentCourses")
+  createdAt          DateTime         @default(now())
+}
+
+
+model RatingAndReview{
+  id Int @id @default(autoincrement())
+  rating Int
+  review String
+  userId    Int
+  user      User   @relation(fields: [userId], references: [id])
+  courseId  Int
+  course    Course @relation(fields: [courseId], references: [id])
+}
+
+model Category{
+  id Int @id @default(autoincrement())
+  name String
+  description String
+  courses Course[]
+}
+
+model Tags{
+  id Int @id @default(autoincrement())
+  Name String
+  Description String
+  CourseId Int
+  course Course @relation(fields: [CourseId],references: [id])
+}
+
+model Invoice {
+  id        Int     @id @default(autoincrement())
+  price     Float
+  address   String
+  pincode   String
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  courseId  Int 
+  course    Course  @relation(fields: [courseId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Otp{
+  id Int @id @default(autoincrement())
+  email String
+  otp String
+  createdAt DateTime @default(now())
+}
+
+
+
+model Profile{
+  id Int @id @default(autoincrement())
+  imageUrl String
+  gender Gender
+  dob String
+  about String
+  contactNumber String
+  userId Int @unique
+  user User @relation(fields: [userId],references: [id])
+}
