@@ -14,8 +14,11 @@ export const isAuth = (req: Request, res: Response, next: NextFunction) => {
     });
   }
 
+  console.log("token", token);
+
   try {
     const decode = jwt.verify(token, String(process.env.JWT_SECRET));
+    console.log(decode);
     req.user = decode;
   } catch (error) {
     return res.status(401).json({

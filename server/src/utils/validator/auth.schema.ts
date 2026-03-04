@@ -2,13 +2,11 @@ import { z } from "zod";
 
 export const signUpSchema = z
   .object({
-    firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().min(1, "Last name is required"),
+    name: z.string().min(1, "Name is required"),
     email: z.email("Invlaid email"),
     password: z.string().min(6, "Password must be at least 8 characters"),
     confirmPassword: z.string().min(6),
     accountType: z.enum(["STUDENT", "INSTRUCTOR", "ADMIN"]).optional(),
-    contactNumber: z.string().min(10),
     otp: z.string().min(6, "OTP is required"),
   })
   .refine((data) => data.password === data.confirmPassword, {

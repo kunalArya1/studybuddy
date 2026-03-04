@@ -24,21 +24,18 @@ model User{
   id              Int              @id @default(autoincrement())
   name            String
   email           String           @unique
-  contactNumber   String
-  password        String
+  password        String?
   accountType     String
   active          Boolean          @default(true)
   token String?
-  resetpasswordExpriesIn Int?
+  resetpasswordExpriesIn DateTime?
   approved        Boolean          @default(false)
-
   profile         Profile?
   courses         Course[]         @relation("InstructorCourses")
   enrolledCourses Course[]         @relation("StudentCourses")
   invoices        Invoice[]
   reviews         RatingAndReview[]
   progress        CourseProgress[]
-
   createdAt       DateTime         @default(now())
 }
 
@@ -66,13 +63,10 @@ model Section{
 }
 model CourseProgress {
   id        Int     @id @default(autoincrement())
-
   userId    Int
   user      User    @relation(fields: [userId], references: [id])
-
   courseId  Int
   course    Course  @relation(fields: [courseId], references: [id])
-
   completedSubSections SubSection[]
 }
 
@@ -99,9 +93,7 @@ model Course {
   courseProgress     CourseProgress[]
   categoryId Int
   category Category @relation(fields: [categoryId],references: [id])
-
   students           User[]           @relation("StudentCourses")
-
   createdAt          DateTime         @default(now())
 }
 
@@ -110,7 +102,6 @@ model RatingAndReview{
   id Int @id @default(autoincrement())
   rating Int
   review String
-
   userId    Int
   user      User   @relation(fields: [userId], references: [id])
   courseId  Int
@@ -137,13 +128,10 @@ model Invoice {
   price     Float
   address   String
   pincode   String
-
   userId    Int
   user      User    @relation(fields: [userId], references: [id])
-
   courseId  Int 
   course    Course  @relation(fields: [courseId], references: [id])
-
   createdAt DateTime @default(now())
 }
 
@@ -163,7 +151,6 @@ model Profile{
   dob String
   about String
   contactNumber String
-
   userId Int @unique
   user User @relation(fields: [userId],references: [id])
 }

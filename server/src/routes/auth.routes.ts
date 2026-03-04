@@ -1,12 +1,23 @@
-import { Router, type Request, type Response } from "express";
+import {
+  Router,
+  type NextFunction,
+  type Request,
+  type Response,
+} from "express";
 import {
   forgotPassword,
+  forgotPasswordToken,
+  me,
   resetPassword,
   sendOtp,
   signIn,
   signOut,
   signUp,
+  socialAuthController,
 } from "../controllers/auth.controller.js";
+import { isAuth } from "../middlewares/auth.middleware.js";
+import passport from "../config/passport.js";
+import "../config/passport.js";
 
 const router: Router = Router();
 
@@ -137,7 +148,9 @@ router.route("/sign-out").get(signOut);
  *                 type: string
  *                 example: user@gmail.com
  */
-router.route("/forgot-password").post(forgotPassword);
+router.route("/reset-password").post(forgotPassword);
+
+router.route("/forgot-password-token").post(forgotPasswordToken);
 
 /**
  * @swagger
@@ -165,5 +178,36 @@ router.route("/forgot-password").post(forgotPassword);
  *                 type: string
  *                 example: NewPassword@123
  */
-router.route("/reset-password").post(resetPassword);
+router.route("/update-password").post(isAuth, resetPassword);
+
+router.get("/google", (req: Request, res: Response, next: NextFunction) => {
+  const role = (req.query.role as string) || "STUDENT";
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    state: role,
+  })(req, res, next);
+});
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { session: false }),
+  socialAuthController,
+);
+
+router.get("/github", (req: Request, res: Response, next: NextFunction) => {
+  const role = (req.query.role as string) || "STUDENT";
+  passport.authenticate("github", { scope: ["profile", "email"], state: role })(
+    req,
+    res,
+    next,
+  );
+});
+
+router.get(
+  "github/callback",
+  passport.authenticate("github", { session: false }),
+  socialAuthController,
+);
+
+router.route("/me").get(isAuth, me);
 export default router;

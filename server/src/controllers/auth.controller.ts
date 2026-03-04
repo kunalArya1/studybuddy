@@ -12,7 +12,6 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { passwordUpdatedEmailTemplate } from "../mail/template/PasswordUpdate.js";
 import { resetPasswordEmailTemplate } from "../mail/template/resetPasswordLinkTemplate.js";
-import { string } from "zod";
 
 /**
  * @route   POST /sign-in
@@ -44,14 +43,14 @@ export const signIn = async (req: Request, res: Response) => {
       });
     }
 
-    if (!(await bcrypt.compare(password, isValidUser.password))) {
+    if (!(await bcrypt.compare(password, isValidUser.password as string))) {
       return res.status(401).json({
         success: false,
         message: "Password is incorrect",
       });
     }
 
-    const jwt_scret: string = String(process.env.JWT_SCRET);
+    const jwt_scret: string = String(process.env.JWT_SECRET);
     const token = jwt.sign(
       {
         email: isValidUser.email,
@@ -108,15 +107,7 @@ export const signUp = async (req: Request, res: Response) => {
       });
     }
 
-    let {
-      firstName,
-      lastName,
-      email,
-      password,
-      accountType,
-      contactNumber,
-      otp,
-    } = parsed.data;
+    let { name, email, password, accountType, otp } = parsed.data;
 
     accountType = accountType ? accountType : "STUDENT";
 
@@ -163,17 +154,16 @@ export const signUp = async (req: Request, res: Response) => {
         email: email,
         password: hashedPassword,
         accountType: accountType,
-        contactNumber: contactNumber,
-        name: firstName + lastName,
+        name: name,
         active: true,
         approved: true,
         profile: {
           create: {
             gender: "Other",
-            imageUrl: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
+            imageUrl: `https://api.dicebear.com/5.x/initials/svg?seed=${name}`,
             about: "",
             dob: "",
-            contactNumber: contactNumber,
+            contactNumber: "0000000000",
           },
         },
       },
@@ -316,16 +306,7 @@ export const signOut = async (req: Request, res: Response) => {
  */
 export const forgotPassword = async (req: Request, res: Response) => {
   try {
-    // get the toekn
-    const {
-      token,
-      password,
-      confirmPassword,
-    }: {
-      token: string;
-      password: string;
-      confirmPassword: string;
-    } = req.body;
+    const { token, password, confirmPassword } = req.body;
 
     if (password !== confirmPassword) {
       return res.status(401).json({
@@ -334,45 +315,39 @@ export const forgotPassword = async (req: Request, res: Response) => {
       });
     }
 
-    const userDetials = await prisma.user.findFirst({
-      where: { token: token },
+    const userDetails = await prisma.user.findFirst({
+      where: { token },
     });
 
-    // find the user
-
-    if (!userDetials) {
+    if (!userDetails) {
       return res.status(404).json({
         success: false,
         message: "Token is invalid",
       });
     }
 
-    if (userDetials!.resetpasswordExpriesIn! < Date.now()) {
+    if (userDetails.resetpasswordExpriesIn! < new Date()) {
       return res.status(401).json({
         success: false,
         message: "Token is expired, please regenerate your token",
       });
     }
-    // then cahnge the password
 
     const hashedpassword = await bcrypt.hash(password, 10);
 
-    const passwordUpdate = await prisma.user.update({
-      where: { email: userDetials.email },
-      data: { password: hashedpassword },
+    await prisma.user.update({
+      where: { email: userDetails.email },
+      data: {
+        password: hashedpassword,
+        token: null,
+        resetpasswordExpriesIn: null,
+      },
     });
 
-    if (!passwordUpdate) {
-      return res.status(501).json({
-        succes: false,
-        message: "Something went wrong while reseting password.",
-      });
-    }
-
-    const mailResponse = await mailerSender(
-      userDetials.email,
-      "Your password has been upadted",
-      passwordUpdatedEmailTemplate(userDetials.email, userDetials.name),
+    await mailerSender(
+      userDetails.email,
+      "Your password has been updated",
+      passwordUpdatedEmailTemplate(userDetails.email, userDetails.name),
     );
 
     return res.status(200).json({
@@ -383,7 +358,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     console.log(error);
     return res.status(500).json({
       success: false,
-      message: "Something went wrong while reseting password",
+      message: "Something went wrong while resetting password",
     });
   }
 };
@@ -418,11 +393,11 @@ export const forgotPasswordToken = async (req: Request, res: Response) => {
       where: { email },
       data: {
         token: token,
-        resetpasswordExpriesIn: Date.now() + 5 * 60 * 100,
+        resetpasswordExpriesIn: new Date(Date.now() + 5 * 60 * 1000),
       },
     });
     // make a link and send the link to the user
-    const url = `${req.protocol}://${req.get("host")}/update-password/${token}`;
+    const url = `${req.protocol}://${req.get("host")}/reset-password/${token}`;
     // send the url
     const mailResponse = await mailerSender(
       email,
@@ -529,4 +504,40 @@ export const resetPassword = async (req: Request, res: Response) => {
       });
     }
   }
+};
+
+export const socialAuthController = async (req: Request, res: Response) => {
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: "Authencation Failed",
+    });
+  }
+
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, {
+    expiresIn: "7d",
+  });
+
+  const options = {
+    expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    secure: true,
+  };
+
+  res.cookie("token", token, options);
+
+  res.redirect(`${process.env.FRONTEND_URL}/login-success`);
+};
+
+export const me = async (req: Request, res: Response) => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.user.id },
+  });
+
+  res.json({
+    success: true,
+    user,
+  });
 };
