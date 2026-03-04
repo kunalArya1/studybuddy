@@ -1,7 +1,7 @@
 import { type Request, type Response, type NextFunction } from "express";
 import { contactSchema } from "../utils/validator/contact.schema.js";
-import mailerSender from "../utils/mailSender.ts";
-import { contactUsEmail } from "../../mail/tmeplate/contactUs.js";
+import { mailerSender } from "../utils/mailSender.js";
+import { contactUsEmail } from "../mail/template/contactUs.js";
 
 export const contact = async (req: Request, res: Response) => {
   try {
