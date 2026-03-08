@@ -7,6 +7,7 @@ import {
   updateProfile,
   updateProfileImage,
 } from "../controllers/profile.controller.js";
+import { isAuth } from "../middlewares/auth.middleware.js";
 
 const router: Router = Router();
 
@@ -15,32 +16,32 @@ const router: Router = Router();
  * @desc  Get logged-in user details
  * @access Private
  */
-router.route("/get-user-details").get(getUserDetails);
+router.route("/get-user-details").get(isAuth, getUserDetails);
 
 /**
  * @route PUT /update-profile
  * @desc  Update user profile details
  * @access Private
  */
-router.route("update-profile").put(updateProfile);
+router.route("/update-profile").put(isAuth, updateProfile);
 /**
  * @route DELETE /delete-profile
  * @desc  Delete user profile
  * @access Private
  */
-router.route("delete-profile").delete(deleteProfile);
+router.route("/delete-profile").delete(isAuth, deleteProfile);
 /**
  * @route GET /enrolled-course
  * @desc  Get all courses enrolled by the user
  * @access Private
  */
-router.route("/enrolled-course").get(enrolledCourses);
+router.route("/enrolled-course").get(isAuth, enrolledCourses);
 /**
  * @route PUT /update-profile-image
  * @desc  Update user profile image
  * @access Private
  */
-router.route("update-profile-image").put(updateProfileImage);
+router.route("/update-profile-image").put(isAuth, updateProfileImage);
 /**
  * @route GET /instructor-dashboard
  * @desc  Get instructor dashboard analytics and data

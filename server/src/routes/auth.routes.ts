@@ -128,7 +128,7 @@ router.route("/send-otp").post(sendOtp);
  *       200:
  *         description: Logged out successfully
  */
-router.route("/sign-out").get(signOut);
+router.route("/sign-out").get(isAuth,signOut);
 
 /**
  * @swagger

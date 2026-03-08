@@ -1,4 +1,8 @@
 import { type Request, type Response, type NextFunction } from "express";
+import { prisma } from "../lib/prisma.js";
+import { me } from "./auth.controller.js";
+import { uplodImage } from "../utils/ImageUploder.js";
+import type { UploadedFile } from "express-fileupload";
 
 /**
  * @route  GET /get-user-details
@@ -6,9 +10,34 @@ import { type Request, type Response, type NextFunction } from "express";
  * @access Private
  */
 export const getUserDetails = async (req: Request, res: Response) => {
-  res.json({
-    message: "user details endpoint",
-  });
+  try {
+    const email = req.user?.email;
+
+    const userDetials = await prisma.user.findUnique({
+      where: { email, active: true },
+      include: {
+        profile: true,
+      },
+    });
+    if (!userDetials) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "User details fetched successfully",
+      data: userDetials,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
 };
 
 /**
@@ -17,9 +46,30 @@ export const getUserDetails = async (req: Request, res: Response) => {
  * @access Private
  */
 export const updateProfile = async (req: Request, res: Response) => {
-  res.json({
-    mesaage: "update profile endpoint",
-  });
+  try {
+    const { gender, dob, about, contactNumber } = req.body;
+    const updatedProfile = await prisma.profile.update({
+      where: { userId: req.user?.id },
+      data: {
+        gender,
+        dob,
+        about,
+        contactNumber,
+      },
+    });
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: updatedProfile,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
 };
 
 /**
@@ -28,9 +78,53 @@ export const updateProfile = async (req: Request, res: Response) => {
  * @access Private
  */
 export const deleteProfile = async (req: Request, res: Response) => {
-  res.json({
-    message: "delete profile endpoint",
-  });
+  try {
+    // before deleting the profile,unerolle the user from all the courses
+    const courses = await prisma.course.findMany({
+      where: {
+        students: {
+          some: {
+            id: req.user?.id,
+          },
+        },
+      },
+      select: { id: true },
+    });
+
+    await Promise.all(
+      courses.map((course) =>
+        prisma.course.update({
+          where: { id: course.id },
+          data: {
+            students: {
+              disconnect: { id: req.user?.id },
+            },
+          },
+        }),
+      ),
+    );
+
+    await prisma.user.update({
+      where: {
+        id: req.user?.id,
+      },
+      data: {
+        active: false,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Profile deleted successfully",
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
 };
 
 /**
@@ -39,9 +133,30 @@ export const deleteProfile = async (req: Request, res: Response) => {
  * @access Private
  */
 export const enrolledCourses = async (req: Request, res: Response) => {
-  res.json({
-    message: "enrolled courese endpoint",
-  });
+  try {
+    const userId = req.user?.id;
+    const enrolledCourses = await prisma.course.findMany({
+      where: {
+        students: {
+          some: {
+            id: Number(userId),
+          },
+        },
+      },
+    });
+    res.status(200).json({
+      success: true,
+      message: "Enrolled courses fetched successfully",
+      data: enrolledCourses,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
 };
 
 /**
@@ -50,9 +165,31 @@ export const enrolledCourses = async (req: Request, res: Response) => {
  * @access Private
  */
 export const updateProfileImage = async (req: Request, res: Response) => {
-  res.json({
-    message: "update profile picture endpoint",
-  });
+  try {
+    const profileImage = req?.files?.profileImage as UploadedFile;
+
+    const response = await uplodImage(profileImage, "profileImage");
+    const url = response.secure_url;
+
+    await prisma.profile.update({
+      where: { userId: req.user?.id },
+      data: {
+        imageUrl: url,
+      },
+    });
+    res.status(200).json({
+      success: true,
+      message: "Profile image updated successfully",
+      data: url,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
 };
 
 /**
