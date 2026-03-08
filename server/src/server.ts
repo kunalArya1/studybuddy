@@ -4,8 +4,7 @@ import express, {
   type Response,
 } from "express";
 
-import authRouter from "./routes/auth.routes.js";
-import profileRouter from "./routes/profile.routes.js";
+import Router from "./routes/routes.js";
 import fileUpload from "express-fileupload";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger.js";
@@ -36,8 +35,7 @@ app.use(
 );
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/profile", profileRouter);
+app.use("/api/v1", Router);
 
 app.get("/", (req: Request, res: Response) => {
   res.json({
