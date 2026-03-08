@@ -2,6 +2,7 @@ import { type Request, type Response, type NextFunction } from "express";
 import { contactSchema } from "../utils/validator/contact.schema.js";
 import { mailerSender } from "../utils/mailSender.js";
 import { contactUsEmail } from "../mail/template/contactUs.js";
+import { contactUsPlatformEmail } from "../mail/template/contactUsPlatformEmail.js";
 
 export const contact = async (req: Request, res: Response) => {
   try {
@@ -18,6 +19,18 @@ export const contact = async (req: Request, res: Response) => {
       paresed.data;
 
     try {
+      await mailerSender(
+        "kunalkrraj@gmail.com",
+        "New Contact Request",
+        contactUsPlatformEmail(
+          email,
+          firstname,
+          lastname,
+          message,
+          phoneNo,
+          countryCode,
+        ),
+      );
       const emailRes = await mailerSender(
         email,
         "Your Data send successfully",
