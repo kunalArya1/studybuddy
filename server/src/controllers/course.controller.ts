@@ -14,7 +14,7 @@ import { convertSecondsToDuration } from "../utils/secToDuration.js";
  */
 export const createCourse = async (req: Request, res: Response) => {
   try {
-    const userId = req.user.decode.id;
+    const userId = req.user.id;
 
     const parsed = createCourseSchema.safeParse(req.body);
 
@@ -32,11 +32,11 @@ export const createCourse = async (req: Request, res: Response) => {
       price,
       instruction,
       tag,
-      category,
+      categorys,
       status,
     } = parsed.data;
     // Get thumbnail image from request files
-    const thumbnail = req.files!.thumbnailImage!;
+    const thumbnail = req.files?.thumbnailImage as UploadedFile;
 
     const file: UploadedFile = Array.isArray(thumbnail)
       ? thumbnail[0]
@@ -44,7 +44,7 @@ export const createCourse = async (req: Request, res: Response) => {
 
     // Convert the tag and instructions from stringified Array to Array
     const tags = JSON.parse(String(tag));
-    const instructions = JSON.parse(instruction);
+    // const instructions = JSON.parse(instruction);
 
     const instructorDetials = await prisma.user.findUnique({
       where: { id: userId },
@@ -57,13 +57,22 @@ export const createCourse = async (req: Request, res: Response) => {
       });
     }
 
+    console.log(categorys);
+
     const categories = await prisma.category.findMany({
       where: {
         name: {
-          in: category,
+          in: categorys,
         },
       },
     });
+
+    if (!categories.length) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found",
+      });
+    }
 
     // uplod tumbnail
     const thumbnailImage = await uplodImage(file, process.env.THUMBNAIL_FOLER!);
@@ -75,13 +84,16 @@ export const createCourse = async (req: Request, res: Response) => {
         whatWillYouLearn: whatYouWillLearn,
         price,
         instruction,
-        tags,
+        tags: {
+          create: tags.map((tag: string) => ({
+            Name: tag,
+            Description: tag,
+          })),
+        },
         thumbnail: thumbnailImage.secure_url,
         instructorId: instructorDetials.id,
         status: "Draft",
-        category: {
-          connect: category.map((name) => ({ name })),
-        },
+        categoryId: categories[0]?.id as number,
       },
     });
 
@@ -111,13 +123,15 @@ export const createCourse = async (req: Request, res: Response) => {
 export const getCourses = async (req: Request, res: Response) => {
   try {
     const allCourse = await prisma.course.findMany({
-      where: { status: "Published" },
+      where: { status: "Draft" },
       select: {
+        id: true,
         courseName: true,
+        courseDescription: true,
         price: true,
         thumbnail: true,
-        studentsEnrolled: true,
-        ratingAndReviews: true,
+        students: true,
+        reviews: true,
         instructor: {
           select: {
             id: true,
@@ -150,7 +164,7 @@ export const getCourses = async (req: Request, res: Response) => {
  */
 export const getCourseDetails = async (req: Request, res: Response) => {
   try {
-    const courseId = req.body;
+    const { courseId } = req.body;
 
     const courseDetial = await prisma.course.findUnique({
       where: { id: Number(courseId) },
@@ -169,6 +183,7 @@ export const getCourseDetails = async (req: Request, res: Response) => {
                 id: true,
                 title: true,
                 description: true,
+                timeDuration: true,
               },
             },
           },
@@ -179,7 +194,7 @@ export const getCourseDetails = async (req: Request, res: Response) => {
     let totalDurationInSeconds = 0;
     courseDetial!.courseContent!.forEach((content) => {
       content.subSection.forEach((subSection) => {
-        const timeDurationInSeconds = parseInt(subSection.timeDuration);
+        const timeDurationInSeconds = parseInt(subSection?.timeDuration);
         totalDurationInSeconds += timeDurationInSeconds;
       });
     });
@@ -252,11 +267,9 @@ export const updateCourse = async (req: Request, res: Response) => {
 
     // if thumbnail is there
     if (req.files) {
-      const thumbnail = req.files!.thumbnailImage!;
+      const thumbnail = req.files!.thumbnailImage! as UploadedFile;
 
-      const file: UploadedFile = Array.isArray(thumbnail)
-        ? thumbnail[0]
-        : thumbnail;
+      const file = Array.isArray(thumbnail) ? thumbnail[0] : thumbnail;
 
       const thumbnailImageUpdate = await uplodImage(
         file,
@@ -311,8 +324,8 @@ export const updateCourse = async (req: Request, res: Response) => {
             profile: true,
           },
         },
-        categoryId: true,
-        ratingAndReviews: true,
+        category: true,
+        reviews: true,
         courseContent: {
           include: {
             subSection: true,

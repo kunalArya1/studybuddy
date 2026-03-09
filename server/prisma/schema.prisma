@@ -12,7 +12,7 @@ datasource db {
 enum Role{
   ADMIN
   STUDENT
-  INSTRUCTUR
+  INSTRUCTOR
 }
 
 enum Gender{
@@ -89,7 +89,7 @@ model Course {
   courseContent           Section[]
   reviews            RatingAndReview[]
   tags               Tags[]
-  invocie            Invoice[]
+  invoice            Invoice[]
   courseProgress     CourseProgress[]
   categoryId Int
   category Category @relation(fields: [categoryId],references: [id])
@@ -110,7 +110,7 @@ model RatingAndReview{
 
 model Category{
   id Int @id @default(autoincrement())
-  name String
+  name String @unique
   description String
   courses Course[]
 }

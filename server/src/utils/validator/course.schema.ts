@@ -4,10 +4,18 @@ export const createCourseSchema = z.object({
   courseName: z.string().min(5, "Course name is required"),
   courseDescription: z.string().min(30, "Course description is required"),
   whatYouWillLearn: z.string().min(7, "whatYouWillLearn is required"),
-  price: z.number().min(1, "course price is required"),
+  price: z.coerce.number().min(1, "course price is required"),
   instruction: z.string().min(20, "Instruction is required"),
-  tag: z.array(z.string()).min(1, "tags are required"),
-  category: z.array(z.string()).min(1, "categorys are required"),
+  tag: z
+    .string()
+    .transform((val) => val.split(",").map((t) => t.trim()))
+    .pipe(z.array(z.string()).min(1)),
+
+  categorys: z
+    .string()
+    .transform((val) => val.split(",").map((c) => c.trim()))
+    .pipe(z.array(z.string()).min(1)),
+
   status: z.string().min(1, "status is required"),
 });
 

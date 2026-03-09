@@ -9,6 +9,7 @@ import {
   updateCourse,
   updateCourseProgress,
 } from "../controllers/course.controller.js";
+import { isAuth } from "../middlewares/auth.middleware.js";
 
 const router: Router = Router();
 
@@ -17,7 +18,7 @@ const router: Router = Router();
  * @desc   Create a new course
  * @access Private (Instructor only)
  */
-router.route("/create-course").post(createCourse);
+router.route("/create-course").post(isAuth, createCourse);
 
 /**
  * @route  GET /get-courses
